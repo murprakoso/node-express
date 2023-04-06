@@ -6,17 +6,23 @@ import mongoose from 'mongoose';
 const app = express();
 const port = parseInt(process.env.PORT ?? 4000);
 
-mongoose
-  .connect(process.env.MONGO_URL)
-  .then(() => console.log('🚀 DB Connection Successfull!'))
-  .catch((err) => {
-    console.log(err);
-  });
+const connectDB = async () => {
+  try {
+    const conn = await mongoose.connect(process.env.MONGO_URL);
+    console.log('🚀 DB Connection Successfull!');
+    console.log(`-- MongoDB Connected: ${conn.connection.host}`);
+  } catch (error) {
+    console.log(error);
+    process.exit(1);
+  }
+};
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use('/', routes);
 
-app.listen(port, () => {
-  console.log(`🚀 Server is listening on http://localhost:${port}`);
+connectDB().then(() => {
+  app.listen(port, () => {
+    console.log(`🚀 Server is listening on http://localhost:${port}`);
+  });
 });
